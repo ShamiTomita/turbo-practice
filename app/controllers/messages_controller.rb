@@ -43,6 +43,7 @@ class MessagesController < ApplicationController
               partial: "messages/message",
               locals:{message: @message}),
             turbo_stream.update('message_counter', html: "#{Message.count}"),
+            turbo_stream.update('notice', "Message Created")
           ]
         end
         format.html { redirect_to message_url(@message), notice: "Message was successfully created." }

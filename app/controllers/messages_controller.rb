@@ -3,7 +3,7 @@ class MessagesController < ApplicationController
 
   # GET /messages or /messages.json
   def index
-    @messages = Message.all
+    @messages = Message.order(created_at: :desc)
   end
 
   # GET /messages/1 or /messages/1.json
@@ -27,9 +27,14 @@ class MessagesController < ApplicationController
       if @message.save
         format.turbo_stream do
           render turbo_stream: [
+            # Hi giiiirl, sooo new_message is the target, here we are creating a new one
             turbo_stream.update('new_message',
               partial: "messages/form",
-              locals:{message: Message.new})
+              locals:{message: Message.new}),
+              #here we are adding that newly created message and appending it to the list
+            turbo_stream.prepend('messages',
+              partial: "messages/message",
+              locals:{message: @message})
           ]
         end
         format.html { redirect_to message_url(@message), notice: "Message was successfully created." }

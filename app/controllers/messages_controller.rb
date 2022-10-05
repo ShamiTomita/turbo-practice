@@ -41,7 +41,8 @@ class MessagesController < ApplicationController
               #here we are adding that newly created message and appending it to the list
             turbo_stream.prepend('messages',
               partial: "messages/message",
-              locals:{message: @message})
+              locals:{message: @message}),
+            turbo_stream.update('message_counter', html: "#{Message.count}"),
           ]
         end
         format.html { redirect_to message_url(@message), notice: "Message was successfully created." }
@@ -92,7 +93,12 @@ class MessagesController < ApplicationController
     @message.destroy
 
     respond_to do |format|
-      format.turbo_stream {render turbo_stream: turbo_stream.remove(@message)}
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.remove(@message),
+          turbo_stream.update('message_counter', Message.count)
+        ]
+      end
       format.html { redirect_to messages_url, notice: "Message was successfully destroyed." }
       format.json { head :no_content }
     end
